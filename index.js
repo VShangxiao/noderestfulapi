@@ -7,27 +7,29 @@ const usersRouter = new Router({
   prefix: '/users'
 })
 
-const auth = async (ctx, next) => {
-  if (ctx.url !== '/users') {
-    ctx.throw(401)
-  }
-  await next()
-}
 
 router.get('/', (ctx) => {
   ctx.body = '这是主页'
 })
 
-usersRouter.get('/', auth, (ctx) => {
-  ctx.body = '这是 router 实现的用户列表'
+usersRouter.get('/', (ctx) => {
+  ctx.body = [{ name: '李雷' }, { name: '韩梅梅' }]
 })
 
-usersRouter.post('/', auth, (ctx) => {
-  ctx.body = '这是创建用户'
+usersRouter.post('/', (ctx) => {
+  ctx.body = { name: '李雷' }
 })
 
-usersRouter.get('/:id', auth, (ctx) => {
-  ctx.body = `这是用户 ${ctx.params.id}`
+usersRouter.get('/:id', (ctx) => {
+  ctx.body = { name: '李雷' }
+})
+
+usersRouter.put('/:id', (ctx) => {
+  ctx.body = { name: '李雷2' }
+})
+
+usersRouter.delete('/:id', (ctx) => {
+  ctx.status = 204
 })
 
 app.use(router.routes())
