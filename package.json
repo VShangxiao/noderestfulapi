@@ -4,7 +4,7 @@
   "description": "api RESTful",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "nodemon app"
   },
   "repository": {
     "type": "git",
