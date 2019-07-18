@@ -1,23 +1,36 @@
 const Koa = require('koa')
-const app = new Koa
+const Router = require('koa-router')
 
-app.use(async (ctx) => {
-  if (ctx.url === '/') {
-    ctx.body = '这是主页'
-  } else if (ctx.url === '/users') {
-    if (ctx.method === 'GET') {
-      ctx.body = '这是用户列表页'
-    } else if (ctx.method === 'POST') {
-      ctx.body = '创建用户'
-    } else {
-      ctx.status = 405
-    }
-  } else if (ctx.url.match(/\/users\/\w+/)) {
-    const userId = ctx.url.match(/\/users\/(\w+)/)[1]
-    ctx.body = `这是用户 ${userId}`
-  } else {
-    ctx.status = 405
-  }
+const app = new Koa
+const router = new Router()
+const usersRouter = new Router({
+  prefix: '/users'
 })
+
+const auth = async (ctx, next) => {
+  if (ctx.url !== '/users') {
+    ctx.throw(401)
+  }
+  await next()
+}
+
+router.get('/', (ctx) => {
+  ctx.body = '这是主页'
+})
+
+usersRouter.get('/', auth, (ctx) => {
+  ctx.body = '这是 router 实现的用户列表'
+})
+
+usersRouter.post('/', auth, (ctx) => {
+  ctx.body = '这是创建用户'
+})
+
+usersRouter.get('/:id', auth, (ctx) => {
+  ctx.body = `这是用户 ${ctx.params.id}`
+})
+
+app.use(router.routes())
+app.use(usersRouter.routes())
 
 app.listen(8081)
