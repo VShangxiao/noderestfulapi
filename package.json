@@ -1,0 +1,25 @@
+{
+  "name": "noderestfulapi",
+  "version": "1.0.0",
+  "description": "api RESTful",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VShangxiao/noderestfulapi.git"
+  },
+  "author": "rust",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/VShangxiao/noderestfulapi/issues"
+  },
+  "homepage": "https://github.com/VShangxiao/noderestfulapi#readme",
+  "dependencies": {
+    "koa": "^2.7.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.1"
+  }
+}
