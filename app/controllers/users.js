@@ -1,21 +1,26 @@
-const db = [{ name: "李雷" }]
+const db = [{
+  name: "李雷"
+}]
 
 class UsersCtl {
-  find(ctx){
+  find(ctx) {
     ctx.body = db
   }
-  findById(ctx){
+  findById(ctx) {
+    if (ctx.params.id * 1 >= db.length) {
+      ctx.throw(412, '先决条件失败：id 大于数组长度了')
+    }
     ctx.body = db[ctx.params.id * 1]
   }
-  create(ctx){
+  create(ctx) {
     db.push(ctx.request.body)
     ctx.body = ctx.request.body
   }
-  update(ctx){
+  update(ctx) {
     db[ctx.params.id * 1] = ctx.request.body
     ctx.body = ctx.request.body
   }
-  delete(ctx){
+  delete(ctx) {
     db.splice(ctx.params.id * 1, 1)
     ctx.status = 204
   }
