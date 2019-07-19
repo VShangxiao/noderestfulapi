@@ -7,7 +7,7 @@ const app = new Koa
 const routing = require('./routes')
 const { connectionStr } = require('./config')
 
-mongoose.connect(connectionStr, { useNewUrlParser: true }, () => console.log('MongoDB Atlas Connect Success!'))
+mongoose.connect(connectionStr, { useNewUrlParser: true }, () => console.log('MongoDB Atlas 连接成功!'))
 mongoose.connection.on('error', console.error)
 
 
