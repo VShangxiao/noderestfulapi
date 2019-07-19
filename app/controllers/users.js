@@ -1,6 +1,6 @@
 const jsonwebtoken = require('jsonwebtoken')
 const User = require('../models/users')
-const secret = require('../config')
+const { secret } = require('../config')
 
 
 class UsersCtl {
@@ -32,6 +32,13 @@ class UsersCtl {
     if (repeatedUser) { ctx.throw(409, '已经存在该用户')}
     const user = await new User(ctx.request.body).save()
     ctx.body = user
+  }
+
+  async checkOwner(ctx, next) {
+    if (ctx.params.id != ctx.state.user._id) {
+      ctx.throw(403, '授权错误，没有权限')
+    }
+    await next()
   }
 
   async update(ctx) {
