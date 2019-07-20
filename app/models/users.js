@@ -19,7 +19,7 @@ const userScema = new Schema({
     required: true,
     select: false,
   },
-  avatar: {
+  avatar_url: {
     type: String,
   },
   gender: {
@@ -35,9 +35,11 @@ const userScema = new Schema({
     type: [{
       type: String
     }],
+    select: false,
   },
   business: {
     type: String,
+    select: false,
   },
   employments: {
     type: [{
@@ -47,7 +49,8 @@ const userScema = new Schema({
       job: {
         type: String
       },
-    }]
+    }],
+    select: false,
   },
   educations: {
     type: [{
@@ -67,7 +70,8 @@ const userScema = new Schema({
       graduation_year: {
         type: Number,
       }
-    }]
+    }],
+    select: false,
   },
 })
 
