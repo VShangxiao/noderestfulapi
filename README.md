@@ -890,3 +890,31 @@ module.exports = router
 
 ```
 
+# 11-5 编写校验用户存在与否的中间件
+
+```
+app\controllers\users,js
+
+# 加在 follow(ctx) 之前校验
+...
+  async checkUserExist(ctx, next) {
+    const user = await User.findById(ctx.params.id)
+    if (!user) {
+      ctx.throw(404, '用户不存在')
+    }
+    await next()
+  }
+  
+  async follow(ctx) { ... }
+```
+
+# 12-1 话题模块需求分析
+
+## 话题模块功能点
+
+- 话题的增改查
+- 分页、模糊搜索
+- 用户属性中的话题引用
+
+- 关注 / 取消关注话题、用户关注的话题列表
+
