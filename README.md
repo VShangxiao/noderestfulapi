@@ -918,3 +918,33 @@ app\controllers\users,js
 
 - 关注 / 取消关注话题、用户关注的话题列表
 
+# 12-2-3 RESTful风格的话题增改查接口
+
+- 设计话题 Schema
+- 实现 RESTful 风格的增改查接口
+
+# 12-4 RESTful-API 分页
+
+- 实现分页逻辑
+- 使用 Postman 测试
+
+# 12-5 RESTful-API 模糊搜索
+
+使用 正则表达式来匹配模糊字段
+
+```
+app\controller\topics.js
+
+...
+class TopicsCtl {
+  async find(ctx) {
+    const { per_page = 3 } = ctx.query
+    const page = Math.max(ctx.query.page * 1, 1) - 1
+    const perPage = Math.max(per_page * 1, 1)
+    ctx.body = await Topic
+    .find({ name: new RegExp(ctx.query.q) })
+    .limit(perPage).skip(page * perPage)
+  }
+}
+```
+
