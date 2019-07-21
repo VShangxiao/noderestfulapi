@@ -21,6 +21,10 @@ const qutstionSchema = new Schema({
     type: Schema.Types.ObjectId, ref: 'User',
     select: false,
   },
+  topics: {
+    type: Schema.Types.ObjectId, ref: 'Topic', 
+    select: false,
+  },
 })
 
 module.exports = model('Question', qutstionSchema)
