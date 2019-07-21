@@ -665,3 +665,228 @@ npm i jsonwebtoken
 
 - 设计 Schema 默认隐蔽部分字段
 - 通过查询字符串显示隐藏字段
+
+# 11-1 关注与分析需求分析
+
+- 关注、取消关注
+- 获取关注人、粉丝列表（用户-用户多对多关系）
+
+# 11-2 关注与粉丝的 Schema 设计
+
+- 关注与粉丝的数据结构（也就是一个列表）
+- 设计关注与粉丝 schema（关注可以设置为属性，列表）
+
+```
+app\models\users.js
+
+...
+  following: {
+    type:[{ type: Schema.Types.ObjectId, ref: 'User' }],
+    select: false
+  },
+```
+
+# 11-3 -4 RESTful风格的关注与粉丝接口
+
+- 实现获取关注人和粉丝列表接口
+- 实现关注和取消关注接口
+- 使用 Postman 测试
+
+```
+app\controllers\users.js
+
+const jsonwebtoken = require('jsonwebtoken')
+const User = require('../models/users')
+const { secret } = require('../config')
+
+
+class UsersCtl {
+  async find(ctx) {
+    ctx.body = await User.find()
+  }
+
+  async findById(ctx) {
+    const { fields } = ctx.query
+    const selectFields = fields.split(';').filter(f => f).map(f => ' +' + f).join('')
+    const user = await User.findById(ctx.params.id).select(selectFields)
+    if (!user) {
+      ctx.throw(404, '用户不存在')
+    }
+    ctx.body = user
+  }
+
+  async create(ctx) {
+    ctx.verifyParams({
+      name: {
+        type: 'string',
+        required: true
+      },
+      password: {
+        type: 'string',
+        required: true,
+      },
+    })
+    const { name } = ctx.request.body
+    const repeatedUser = await User.findOne({ name })
+    if (repeatedUser) { ctx.throw(409, '已经存在该用户')}
+    const user = await new User(ctx.request.body).save()
+    ctx.body = user
+  }
+
+  async checkOwner(ctx, next) {
+    if (ctx.params.id != ctx.state.user._id) {
+      ctx.throw(403, '授权错误，没有权限')
+    }
+    await next()
+  }
+
+  async update(ctx) {
+    ctx.verifyParams({
+      name: {
+        type: 'string',
+        required: false
+      },
+      password: {
+        type: 'string',
+        required: false,
+      },
+      avatar_url: {
+        type: 'string',
+        required: false,
+      },
+      gender: {
+        type: 'string',
+        required: false,
+      },
+      headline: {
+        type: 'string',
+        required: false,
+      },
+      locations: {
+        type: 'array',
+        itemType: 'string',
+        required: false,
+      },
+      business: {
+        type: 'string',
+        required: false,
+      },
+      employments: {
+        type: 'array',
+        itemType: 'object',
+        required: false,
+      },
+      educations: {
+        type: 'array',
+        itemType: 'object',
+        required: false,
+      },
+    })
+    const user = await User.findByIdAndUpdate(ctx.params.id, ctx.request.body);
+    if (!user) {
+      ctx.throw(404, '用户不存在');
+    }
+    ctx.body = user;
+  }
+
+  async delete(ctx) {
+    const user = await User.findByIdAndRemove(ctx.params.id);
+    if (!user) {
+      ctx.throw(404, '用户不存在');
+    }
+    ctx.status = 204;
+  }
+
+  async login(ctx) {
+    ctx.verifyParams({
+      name: {
+        type: 'string',
+        required: true
+      },
+      password: {
+        type: 'string',
+        required: true,
+      },
+    })
+    const user = await User.findOne(ctx.request.body)
+    if (!user) {
+      ctx.throw('401', '用户名或密码不正确')
+    }
+    const { _id, name } = user
+    const token = jsonwebtoken.sign({ _id, name }, secret, { expiresIn: '1d' })
+    ctx.body = { token }
+  }
+
+  async listFollowing(ctx) {
+    const user = await User.findById(ctx.params.id).select('+following').populate('following')
+    if  (!user) {
+      ctx.throw(404)
+    }
+    ctx.body = user.following
+  }
+
+  async listFollowers(ctx) {
+    const users = await User.find({ following: ctx.params.id })
+    ctx.body = users
+  }
+
+  async follow(ctx) {
+    const me = await User.findById(ctx.state.user._id).select('+following')
+    if(!me.following.map(id => id.toString()).includes(ctx.params.id)) {
+      me.following.push(ctx.params.id)
+      me.save()
+    } 
+    ctx.status = 204
+  }
+
+  async unfollow(ctx) {
+    const me = await User.findById(ctx.state.user._id).select('+following')
+    const index = me.following.map(id => id.toString()).indexOf(ctx.params.id)
+    if(index > -1) {
+      me.following.splice(index, 1)
+      me.save()
+    } 
+    ctx.status = 204
+  }
+}
+
+module.exports = new UsersCtl()
+```
+
+```
+app\routes\users.js
+
+const jwt = require('koa-jwt')
+const Router = require('koa-router')
+const router = new Router({prefix: '/users'})
+const { find, findById, create, update, 
+  delete:del, login, checkOwner, listFollowing, listFollowers, follow, unfollow, } = require('../controllers/users')
+
+const { secret } = require('../config')
+
+const auth = jwt({ secret }) 
+
+router.get('/', find)
+
+router.post('/', create)
+
+router.get('/:id', findById)
+
+router.patch('/:id', auth, checkOwner, update)
+
+router.delete('/:id', auth, checkOwner, del)
+
+router.post('/login', login)
+
+router.get('/:id/following', listFollowing)
+
+router.get('/:id/followers', listFollowers)
+
+router.put('/following/:id', auth, follow)
+
+router.delete('/following/:id', auth, unfollow)
+
+module.exports = router
+
+```
+

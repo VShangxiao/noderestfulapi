@@ -2,7 +2,7 @@ const jwt = require('koa-jwt')
 const Router = require('koa-router')
 const router = new Router({prefix: '/users'})
 const { find, findById, create, update, 
-  delete:del, login, checkOwner } = require('../controllers/users')
+  delete:del, login, checkOwner, listFollowing, listFollowers, follow, unfollow, } = require('../controllers/users')
 
 const { secret } = require('../config')
 
@@ -19,5 +19,13 @@ router.patch('/:id', auth, checkOwner, update)
 router.delete('/:id', auth, checkOwner, del)
 
 router.post('/login', login)
+
+router.get('/:id/following', listFollowing)
+
+router.get('/:id/followers', listFollowers)
+
+router.put('/following/:id', auth, follow)
+
+router.delete('/following/:id', auth, unfollow)
 
 module.exports = router
