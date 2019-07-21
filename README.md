@@ -1223,3 +1223,6 @@ class UsersCtl {
 module.exports = new UsersCtl()
 ```
 
+# 12-7 RESTful 风格的关注话题接口（上）
+
+- 实现关注话题逻辑（用户-话题多对多关系）
