@@ -2,7 +2,7 @@ const Topic = require('../models/topics')
 
 class TopicsCtl {
   async find(ctx) {
-    const { per_page = 3 } = ctx.query
+    const { per_page = 10 } = ctx.query
     const page = Math.max(ctx.query.page * 1, 1) - 1
     const perPage = Math.max(per_page * 1, 1)
     ctx.body = await Topic

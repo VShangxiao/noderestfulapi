@@ -16,7 +16,17 @@ class UsersCtl {
   async findById(ctx) {
     const { fields = '' } = ctx.query
     const selectFields = fields.split(';').filter(f => f).map(f => ' +' + f).join('')
+    const populateStr = fields.split(';').filter(f => f).map(f => {
+      if (f === 'employments') {
+        return 'employments.company employments.job'
+      }
+      if (f === 'educations') {
+        return 'employments.company employments.job'
+      }
+      return f
+    }).join(' ')
     const user = await User.findById(ctx.params.id).select(selectFields)
+    .populate('following locations business employments.company employments.job educations.school educations.major')
     if (!user) {
       ctx.throw(404, '用户不存在')
     }

@@ -33,21 +33,21 @@ const userScema = new Schema({
   },
   locations: {
     type: [{
-      type: String
+      type: Schema.Types.ObjectId, ref: 'Topic',
     }],
     select: false,
   },
   business: {
-    type: String,
+    type: Schema.Types.ObjectId, ref: 'Topic',
     select: false,
   },
   employments: {
     type: [{
       company: {
-        type: String
+        type: Schema.Types.ObjectId, ref: 'Topic'
       },
       job: {
-        type: String
+        type: Schema.Types.ObjectId, ref: 'Topic'
       },
     }],
     select: false,
@@ -55,10 +55,10 @@ const userScema = new Schema({
   educations: {
     type: [{
       school: {
-        type: String
+        type: Schema.Types.ObjectId, ref: 'Topic'
       },
       major: {
-        type: String
+        type: Schema.Types.ObjectId, ref: 'Topic'
       },
       diploms: {
         type: Number,
